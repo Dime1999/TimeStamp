@@ -4,6 +4,7 @@
 var express = require("express");
 var app = express();
 
+//Allows the program to scan for user input in the HTML file.
 var bodyParser = require("body-parser");
 app.use(bodyParser.urlencoded({
   extended: true
@@ -41,8 +42,12 @@ function changeTime(time) {
   var amOrpm = hours >= 12 ? 'pm' : 'am';
   hours = (hours % 12) - 5;
   hours = hours ? hours : 12;
+  hours = hours - 12;
+  newHours = hours - 5;
+  newHours = newHours + 6;
+  newHours = Math.abs(newHours);
   minutes = minutes < 10 ? '0'+minutes : minutes;
-  var strTime = hours + ':' + minutes + ' ' + amOrpm;
+  var strTime = newHours + ':' + minutes + ' ' + amOrpm;
   return strTime;
 }
 
@@ -50,8 +55,8 @@ app.get("/api/currTime", (request, response) => {
   response.json(changeTime(new Date()));
 });
 
+//Lines 56 to 62 are from: https://stackoverflow.com/questions/1531093/how-do-i-get-the-current-date-in-javascript
 function changeDate(date) {
-  //Lines 55 to 58 are from: https://stackoverflow.com/questions/1531093/how-do-i-get-the-current-date-in-javascript
   var day = String(date.getDate()).padStart(2, '0');
   var month = String(date.getMonth() + 1).padStart(2, '0');//January is 0
   var year = date.getFullYear();
@@ -59,10 +64,12 @@ function changeDate(date) {
   return date;
 }
 
+//Calls the function changeDate
 app.get("/api/currDate", (request, response) => {
   response.json(changeDate(new Date()));
 });
 
+//Lines 70 to 89 initiate the request to see each given date in unix and utc format
 app.post("/api/dateInput", (request, response)=> {
   let date = request.body.date;
 
@@ -84,6 +91,7 @@ app.post("/api/dateInput", (request, response)=> {
   response.json(responseObject);
 });
 
+//Takes the user requested date in a certain format and returns the unix and utc version of the date
 app.get("/api/:date_string", (request, response) => {
     const date = isUnix(request.params.date_string) ? new Date(parseInt(request.params.date_string)) : new Date(request.params.date_string);
     if(date.getTime()){
@@ -94,7 +102,7 @@ app.get("/api/:date_string", (request, response) => {
     }
 });
 
+//Deploys the code locally
 var listener = app.listen(process.env.PORT, function() {
   console.log("Your app is listening on port " + listener.address().port);
 });
-

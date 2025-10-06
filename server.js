@@ -36,19 +36,14 @@ let responseObject = {};
 
 //Lines 43 to 51 are from https://stackoverflow.com/questions/8888491/how-do-you-display-javascript-datetime-in-12-hour-am-pm-format
 //Lines 43 to 51 take the user given date as a parameter and converts it to regular format
-function changeTime(time) {
-  var hours = time.getHours();
-  var minutes = time.getMinutes();
-  var amOrpm = hours >= 12 ? 'pm' : 'am';
-  hours = (hours % 12) - 5;
-  hours = hours ? hours : 12;
-  hours = hours - 12;
-  newHours = hours - 5;
-  newHours = newHours + 6;
-  newHours = Math.abs(newHours);
-  minutes = minutes < 10 ? '0'+minutes : minutes;
-  var strTime = newHours + ':' + minutes + ' ' + amOrpm;
-  return strTime;
+
+function changeTime(date) {
+  return date.toLocaleTimeString('en-US', {
+    timeZone: 'America/New_York',
+    hour: '2-digit',
+    minute: '2-digit',
+    hour12: true
+  });
 }
 
 app.get("/api/currTime", (request, response) => {

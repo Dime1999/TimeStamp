@@ -34,20 +34,41 @@ app.get("/", function(req, res) {
 //Create object to store timestamps
 let responseObject = {};
 
-//Lines 43 to 51 are from https://stackoverflow.com/questions/8888491/how-do-you-display-javascript-datetime-in-12-hour-am-pm-format
-//Lines 43 to 51 take the user given date as a parameter and converts it to regular format
-
-function changeTime(date) {
-  return date.toLocaleTimeString('en-US', {
-    timeZone: 'America/New_York',
-    hour: '2-digit',
-    minute: '2-digit',
-    hour12: true
-  });
-}
-
 app.get("/api/currTime", (request, response) => {
-  response.json(changeTime(new Date()));
+  const timeZone = request.query.tz || 'UTC';
+
+  try {
+    const now = new Date();
+
+    response.json({
+      requestedZone: timeZone,
+      currentTime: now.toLocaleTimeString('en-US', {
+        timeZone,
+        hour: '2-digit',
+        minute: '2-digit',
+        second: '2-digit',
+        hour12: true
+      }),
+      estTime: now.toLocaleTimeString('en-US', {
+        timeZone: 'America/New_York',
+        hour: '2-digit',
+        minute: '2-digit',
+        second: '2-digit',
+        hour12: true
+      }),
+      utcTime: now.toLocaleTimeString('en-US', {
+        timeZone: 'UTC',
+        hour: '2-digit',
+        minute: '2-digit',
+        second: '2-digit',
+        hour12: true
+      })
+    });
+  } catch (error) {
+    response.status(400).json({
+      error: "Invalid time zone. Use a valid IANA time zone name (e.g., America/New_York)"
+    });
+  }
 });
 
 //Lines 56 to 62 are from: https://stackoverflow.com/questions/1531093/how-do-i-get-the-current-date-in-javascript
@@ -78,11 +99,11 @@ app.post("/api/dateInput", (request, response)=> {
     responseObject['unix'] = new Date(date).getTime();//Already in milliseconds
     responseObject['utc'] = new Date(date).toUTCString();
   }
-  
+ 
   if(!responseObject['unix'] || !responseObject['utc']) {
     response.json({error: "Invalid Date"});
-  } 
-    
+  }
+   
   response.json(responseObject);
 });
 
